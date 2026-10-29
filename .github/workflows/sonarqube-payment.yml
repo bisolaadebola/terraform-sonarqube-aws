@@ -1,4 +1,3 @@
-
 name: SonarQube Payment Service Analysis
 
 on:
@@ -30,6 +29,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Verify SonarQube secrets are available
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          if [ -z "$SONAR_TOKEN" ] || [ -z "$SONAR_HOST_URL" ]; then
+            echo "SONAR_TOKEN or SONAR_HOST_URL is empty (missing secret, or run from a fork)."
+            exit 1
+          fi
+
       - name: Analyze with SonarQube
         uses: SonarSource/sonarqube-scan-action@v5
         env:
@@ -39,6 +48,6 @@ jobs:
           projectBaseDir: payment-service
           args: >
             -Dsonar.projectKey=payment-service
-            -Dsonar.projectName=Payment-Service
+            -Dsonar.projectName=payment-service
             -Dsonar.sources=.
             -Dsonar.exclusions=node_modules/**,coverage/**
